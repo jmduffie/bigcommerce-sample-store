@@ -1,5 +1,5 @@
 {{#if category.products}}
-    <button class="button button--primary" data-button-type="add-all-to-cart" data-js-context="{{{JSONstringify category}}}" onclick="addAllToCart()">Add All To Cart</button>
+    <button class="button button--primary" data-button-type="add-all-to-cart" onclick="addAllToCart()">Add All To Cart</button>
     <button id='remove-all-items-button' class="button button--secondary" data-button-type="remove-all-items" onclick="removeAllItems()">Remove All Items</button>
     <script>
         let removeAllItemsButton = document.getElementById('remove-all-items-button');

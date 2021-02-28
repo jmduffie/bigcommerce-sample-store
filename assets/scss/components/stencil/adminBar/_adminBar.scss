@@ -49,6 +49,10 @@ body.hasAdminBar {
     .navPages-container.is-open {
         padding-top: $header-height;
     }
+
+    .navUser-userInformation {
+        top: $adminBar-height;
+    }
 }
 
 .adminBar {
