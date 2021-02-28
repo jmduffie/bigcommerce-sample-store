@@ -1,5 +1,5 @@
 <article class="card {{#if alternate}}card--alternate{{/if}}" {{#if settings.data_tag_enabled}} data-event-type="{{event}}" data-entity-id="{{id}}" data-position="{{position}}" data-name="{{name}}" data-product-category="{{#each category}}{{#if @last}}{{this}}{{else}}{{this}}, {{/if}}{{/each}}" data-product-brand="{{brand.name}}" data-product-price="{{#if price.with_tax}}{{price.with_tax.value}}{{else}}{{price.without_tax.value}}{{/if}}"  {{/if}}>
-    <figure class="card-figure">
+    <figure class="card-figure" onmouseenter="setSecondImage({{@index}})" onmouseleave="setOriginalImage({{@index}})">
         {{#or price.sale_price_with_tax.value price.sale_price_without_tax.value}}
             {{#if theme_settings.product_sale_badges '===' 'sash'}}
                 <div class="sale-flag-sash">
@@ -15,13 +15,45 @@
                     <div class="sale-flag-star"></div>
                 </div>
             {{/if}}
-        {{/or}}
+            {{/or}}
+        <script>
+            var items;
+            if (!items){
+                items = [];
+            }
+            items[{{@index}}] = {{{JSONstringify this}}};
+            function setSecondImage(index){
+                let productSize = JSON.parse({{jsContext}}).productSize;
+                let image = items[index].images[1];
+                let imageData;
+                if (image){
+                    imageData = image.data.replace('{:size}', `${productSize}`);
+                    let el = document.getElementsByClassName("card-img-container")[index];
+                    el.children[0].setAttribute('src', imageData);
+                    el.children[0].setAttribute('srcset', imageData);
+                }
+            }
+            function setOriginalImage(index){
+                let productSize = JSON.parse({{jsContext}}).productSize;
+                let image = items[index].image;
+                let imageData;
+                if (image){
+                    imageData = image.data.replace('{:size}', `${productSize}`);
+                    let el = document.getElementsByClassName("card-img-container")[index];
+                    if (el.children[0].src !== imageData){
+                        el.children[0].setAttribute('src', imageData);
+                        el.children[0].setAttribute('srcset', imageData);
+                    }
+                }
+            }
+        </script>
         <a href="{{url}}" 
            class="card-figure__link"
            aria-label="{{name}},{{> components/products/product-aria-label}}"
            {{#if settings.data_tag_enabled}} data-event-type="product-click" {{/if}}
         >
             <div class="card-img-container">
+                {{inject 'image' image}}
                 {{> components/common/responsive-img
                     image=image
                     class="card-image"

@@ -64,12 +64,49 @@
             }
         }
     }
+    &.is-logged-in {
+        padding-top: $adminBar-height;
+    }
 }
 
 .navUser-section {
     @include breakpoint("medium") {
         position: relative; // 7
     }
+}
+
+.navUser-userInformation {
+    // Only show user info bar at desktop width
+    display: none;
+
+    @include breakpoint("medium") {
+        display: block;
+    }
+
+    background-color: $adminBar-color;
+    box-shadow: 0 remCalc(2) remCalc(7) 0 rgba(0, 0, 0, 0.2);
+    color: $adminBar-text-color;
+    font-family: "Source Sans Pro", arial, "sans serif", sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    height: $adminBar-height;
+    left: 0;
+    position: fixed;
+    text-decoration: none;
+    top: 0;
+    width: 100%;
+    z-index: 10000;
+
+    .hasAdminBar {
+        top: $adminBar-height
+    }
+}
+
+.navUser-userInformation--content {
+    align-items: center;
+    display: flex;
+    height: $adminBar-height;
+    justify-content: space-evenly;
 }
 
 .navUser-action {

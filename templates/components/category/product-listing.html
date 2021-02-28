@@ -1,4 +1,107 @@
 {{#if category.products}}
+    <button class="button button--primary" data-button-type="add-all-to-cart" data-js-context="{{{JSONstringify category}}}" onclick="addAllToCart()">Add All To Cart</button>
+    <button id='remove-all-items-button' class="button button--secondary" data-button-type="remove-all-items" onclick="removeAllItems()">Remove All Items</button>
+    <script>
+        let removeAllItemsButton = document.getElementById('remove-all-items-button');
+        function handleStorageChange(){
+            if (localStorage['cart-quantity'] != '0' && removeAllItemsButton.style.visibility !== "visible"){
+                removeAllItemsButton.style.visibility = "visible";
+            } else if (removeAllItemsButton.style.visibility === "visible"){
+                removeAllItemsButton.style.visibility = "hidden";
+            }
+        }
+        localStorage.setItem('cartId', JSON.parse({{jsContext}}).cartId);
+        window.onstorage = handleStorageChange;
+        handleStorageChange();
+        async function addAllToCart(){
+            let products = {{{JSONstringify category.products}}};
+            let lineItems = [];
+            await products.forEach(function(product) {
+                if (!product.has_options){
+                    lineItems.push({
+                        "quantity": 1,
+                        "product_id": product.id,
+                        "list_price": product.price.without_tax.value,
+                    });
+                }
+            });
+            let body = {
+                line_items: lineItems
+            };
+            let url;
+            let cartId = localStorage.cartId;
+            if (localStorage['cart-quantity'] == '0'){
+                url = `${window.location.origin}/api/storefront/cart`;
+            } else {
+                url = `${window.location.origin}/api/storefront/carts/${cartId}/items`;
+            }
+            const response = await fetch(url, {
+                method: 'POST', 
+                mode: 'cors', 
+                cache: 'no-cache', 
+                credentials: 'same-origin', 
+                headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+                },
+                redirect: 'follow', 
+                referrerPolicy: 'no-referrer', 
+                body: JSON.stringify(body) 
+            })
+            .then(res => res.json())
+            .then(async res => {
+                let cartQuantity = 0;
+                await Object.values(res.lineItems).forEach(async (value) => {
+                    await value.forEach((item) => {
+                        cartQuantity += item.quantity;
+                    })
+                });
+                let cartBadge = document.getElementsByClassName('cart-quantity')[0];
+                cartBadge.textContent = cartQuantity;
+                if (cartQuantity > 0){
+                    cartBadge.classList.add('countPill--positive');
+                } else {
+                    cartBadge.classList.remove('countPill--positive');
+                }
+                localStorage.setItem('cart-quantity', cartQuantity);
+                if (removeAllItemsButton.style.visibility !== "visible"){
+                    removeAllItemsButton.style.visibility = "visible";
+                }
+                if (localStorage.cartId !== res.id){
+                    localStorage.setItem('cartId', res.id);
+                }
+                
+            })
+            .catch(err => console.log(err));
+        }
+        async function removeAllItems(){
+            let cartId = localStorage.cartId;
+            let url = `${window.location.origin}/api/storefront/carts/${cartId}`;
+            const response = await fetch(url, {
+                method: 'DELETE', 
+                mode: 'cors', 
+                cache: 'no-cache', 
+                credentials: 'same-origin', 
+                headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+                },
+                redirect: 'follow', 
+                referrerPolicy: 'no-referrer', 
+            })
+            .then(async res => {
+                let cartQuantity = 0;
+                let cartBadge = document.getElementsByClassName('cart-quantity')[0];
+                cartBadge.classList.remove('countPill--positive');
+                localStorage.setItem('cart-quantity', cartQuantity);
+                if (removeAllItemsButton.style.visibility === "visible"){
+                    removeAllItemsButton.style.visibility = "hidden";
+                }
+                localStorage.removeItem('cartId');
+            })
+            .catch(err => console.log(err));
+        }
+    </script>
     {{> components/products/filter sort=pagination.category.sort}}
 
     <form action="{{urls.compare}}" method='POST' {{#if settings.data_tag_enabled}} data-list-name="Category: {{category.name}}" {{/if}} data-product-compare>

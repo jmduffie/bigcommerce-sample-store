@@ -2,10 +2,26 @@
 // CATEGORY (CSS)
 // =============================================================================
 
-
 // Category header
 // -----------------------------------------------------------------------------
 
 .category-header-image {
+  width: 100%;
+}
+
+.button--primary {
+  margin-bottom: 0px;
+}
+
+#remove-all-items-button {
+  visibility: hidden;
+  margin-bottom: 0px;
+}
+
+@media (max-width: 550px) {
+  .button--primary, #remove-all-items-button {
+    float: left;
     width: 100%;
+    margin-bottom: 16px;
+  }
 }

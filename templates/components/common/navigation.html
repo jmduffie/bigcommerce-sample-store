@@ -1,6 +1,22 @@
-<nav class="navUser">
+<script>
+    let customer = {{{JSONstringify customer}}};
+    if (document.body.classList.contains('hasAdminBar') && customer){
+        document.getElementsByClassName('navUser-userInformation')[0].classList.add('hasAdminBar');
+    }
+</script>
+<nav class="navUser {{#if customer}}{{#if template '===' 'pages/category'}}is-logged-in{{/if}}{{/if}}">
     {{> components/common/currency-selector}}
-
+    {{#if customer}}
+    {{#if template '===' 'pages/category'}}
+    <div class="navUser-userInformation">
+        <div class="navUser-userInformation--content">
+            <span><b>Name:</b> {{customer.name}}</span>
+            <span><b>Email:</b> {{customer.email}}</span>
+            <span><b>Phone:</b> {{customer.phone}}</span>
+        </div>
+    </div>
+    {{/if}}
+    {{/if}}
     <ul class="navUser-section navUser-section--alt">
         {{#if customer.store_credit.value '>' 0}}
             <li class="navUser-item">
